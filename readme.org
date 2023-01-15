@@ -6,4 +6,8 @@
 #+OPTIONS: toc:nil num:nil
 #+STARTUP: content
 
-Prometheus remote storage API
+[[https://github.com/jiacai2050/prom-remote-api/actions/workflows/ci.yml][https://github.com/jiacai2050/prom-remote-api/actions/workflows/ci.yml/badge.svg]]
+
+Prometheus remote storage API for Rust.
+
+See [[file:examples/simple.rs][simple.rs]] for basic usage.

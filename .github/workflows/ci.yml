@@ -51,9 +51,9 @@ jobs:
       - name: Backup Lock File
         run: |
           cp ${LOCK_FILE} ${LOCK_FILE}.bak
-      - name: Install cargo-sort
+      - name: Install deps
         run: |
-          cargo install cargo-sort
+          make setup
       - name: Run Style Check
         run: |
           make clippy

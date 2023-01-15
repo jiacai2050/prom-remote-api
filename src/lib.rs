@@ -3,7 +3,8 @@
 //! This crate provides data structures to implement [prometheus remote storage](https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations).
 //!
 //! The main trait is [RemoteStorage](crate::types::RemoteStorage), which encapsulates write/read capability.
-//! A simple usage can be found [here]()
+//!
+//! See [this file](https://github.com/jiacai2050/prom-remote-api/blob/main/examples/simple.rs) for basic usage.
 
 pub mod types;
 mod util;
