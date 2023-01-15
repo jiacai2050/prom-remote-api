@@ -1,9 +1,9 @@
+use async_trait::async_trait;
+use std::{fmt::Display, sync::Arc};
+
 mod prometheus {
     include!(concat!(env!("OUT_DIR"), "/prometheus.rs"));
 }
-
-use std::{fmt::Display, sync::Arc};
-
 pub use prometheus::*;
 
 #[derive(Debug)]
@@ -38,12 +38,13 @@ impl std::error::Error for Error {
 /// Remote storage is Prometheus's solution for long-term storage. More refer:
 ///
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
+#[async_trait]
 pub trait RemoteStorage {
     /// Write samples to remote storage
-    fn write(&self, req: WriteRequest) -> Result<()>;
+    async fn write(&self, req: WriteRequest) -> Result<()>;
 
     /// Read samples from remote storage
-    fn read(&self, req: ReadRequest) -> Result<ReadResponse>;
+    async fn read(&self, req: ReadRequest) -> Result<ReadResponse>;
 }
 
 pub type RemoteStorageRef = Arc<dyn RemoteStorage + Send + Sync>;

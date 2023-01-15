@@ -23,13 +23,14 @@ use crate::{
 pub async fn write(storage: RemoteStorageRef, req: WriteRequest) -> Result<impl Reply, Rejection> {
     storage
         .write(req)
+        .await
         .map_err(reject::custom)
         .map(|_| reply::reply())
 }
 
 /// Warp handler for remote read request
 pub async fn read(storage: RemoteStorageRef, req: ReadRequest) -> Result<impl Reply, Rejection> {
-    storage.read(req).map_err(reject::custom)
+    storage.read(req).await.map_err(reject::custom)
 }
 
 /// Create a `Filter` that matches any requests and return a `RemoteStorageRef`,

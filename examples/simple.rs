@@ -6,8 +6,9 @@
 //!
 //! remote_read:
 //!   - url: "http://localhost:9201/api/read"
-//! ```yml
+//! ```
 
+use async_trait::async_trait;
 use std::sync::Arc;
 
 use prom_remote_api::{
@@ -43,13 +44,14 @@ fn generate_samples(start_ms: i64, end_ms: i64, step_ms: i64) -> Vec<Sample> {
         .collect()
 }
 
+#[async_trait]
 impl RemoteStorage for MockStorage {
-    fn write(&self, req: WriteRequest) -> Result<()> {
+    async fn write(&self, req: WriteRequest) -> Result<()> {
         println!("mock write, req:{req:?}");
         Ok(())
     }
 
-    fn read(&self, req: ReadRequest) -> Result<ReadResponse> {
+    async fn read(&self, req: ReadRequest) -> Result<ReadResponse> {
         println!("mock read, req:{req:?}");
         let query = &req.queries[0];
 
