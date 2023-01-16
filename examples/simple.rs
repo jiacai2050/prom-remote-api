@@ -16,7 +16,7 @@ use prom_remote_api::{
         Label, QueryResult, ReadRequest, ReadResponse, RemoteStorage, RemoteStorageRef, Result,
         Sample, TimeSeries, WriteRequest,
     },
-    warp_adapter,
+    web,
 };
 use warp::Filter;
 
@@ -92,13 +92,13 @@ impl RemoteStorage for MockStorage {
 async fn main() {
     let storage = Arc::new(MockStorage) as RemoteStorageRef;
     let write_api = warp::path!("write")
-        .and(warp_adapter::with_remote_storage(storage.clone()))
-        .and(warp_adapter::protobuf_body())
-        .and_then(warp_adapter::write);
+        .and(web::warp::with_remote_storage(storage.clone()))
+        .and(web::warp::protobuf_body())
+        .and_then(web::warp::write);
     let query_api = warp::path!("read")
-        .and(warp_adapter::with_remote_storage(storage))
-        .and(warp_adapter::protobuf_body())
-        .and_then(warp_adapter::read);
+        .and(web::warp::with_remote_storage(storage))
+        .and(web::warp::protobuf_body())
+        .and_then(web::warp::read);
 
     let routes = warp::path("api").and(write_api.or(query_api));
 

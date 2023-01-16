@@ -43,17 +43,17 @@ jobs:
           path: |
             ~/.cargo
             ./target
-          key: debug-${{ runner.os }}-${{ hashFiles('rust-toolchain') }}-${{ hashFiles('Cargo.lock') }}
+          key: debug-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            debug-${{ runner.os }}-${{ hashFiles('rust-toolchain') }}-
             debug-${{ runner.os }}-
-            debug-${{ runner.os }}
+            debug-
       - name: Backup Lock File
         run: |
           cp ${LOCK_FILE} ${LOCK_FILE}.bak
       - name: Install deps
         run: |
           make setup
+          cargo install cargo-sort
       - name: Run Style Check
         run: |
           make clippy

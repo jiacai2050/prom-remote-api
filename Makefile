@@ -5,7 +5,6 @@ else
 endif
 
 setup:
-	cargo install cargo-sort
 ifeq ($(uname_S), Darwin)
 	brew install protobuf
 else ifeq ($(uname_S), Linux)
@@ -28,3 +27,6 @@ cargo-sort:
 
 test:
 	cargo test --all-features
+
+dry:
+	cargo publish --dry-run

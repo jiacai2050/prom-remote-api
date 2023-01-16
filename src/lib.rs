@@ -7,6 +7,6 @@
 //! See [this file](https://github.com/jiacai2050/prom-remote-api/blob/main/examples/simple.rs) for basic usage.
 
 pub mod types;
-mod util;
 #[cfg(feature = "warp")]
-pub mod warp_adapter;
+mod util;
+pub mod web;

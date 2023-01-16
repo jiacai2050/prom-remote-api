@@ -35,8 +35,8 @@ impl std::error::Error for Error {
     }
 }
 
-/// Remote storage is Prometheus's solution for long-term storage. More refer:
-///
+/// Remote storage is Prometheus's solution for long-term storage.
+/// Third-party storage can be integrated with Prometheus by implement this trait.
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
 #[async_trait]
 pub trait RemoteStorage {

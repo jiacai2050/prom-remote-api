@@ -22,6 +22,10 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Install deps
+        run: |
+          make setup
+
       - run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

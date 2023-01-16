@@ -2,7 +2,13 @@
 name = "prom-remote-api"
 version = "0.1.0"
 edition = "2021"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "Apache-2.0"
+description = "Prometheus remote storage API for Rust"
+homepage = "https://github.com/jiacai2050/prom-remote-api"
+repository = "https://github.com/jiacai2050/prom-remote-api"
+authors = ["Jiacai Liu <dev@liujiacai.net>"]
+keywords = ["prometheus", "API", "remote", "storage"]
+readme = "README.md"
 
 [dependencies]
 async-trait = "0.1.61"
