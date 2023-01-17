@@ -9,13 +9,17 @@ Prometheus [remote storage](https://prometheus.io/docs/prometheus/latest/storage
 
 ## Usage
 
-There are two interfaces in Prometheus remote storage API:
-1. write
-2. read
+There are two interfaces in Prometheus remote storage API: write/read.
 
 Both interfaces use a snappy-compressed protocol buffer encoding over HTTP.
 
-This crate use [prost-build](https://github.com/tokio-rs/prost/tree/master/prost-build) to convert [remote storage protocol buffer definitions](https://github.com/prometheus/prometheus/blob/main/prompb/remote.proto) to Rust code, and expose a `RemoteStorage` trait for any third-party storage to integrate with Prometheus.
+This crate provides:
+- Rust-binding to [prometheus remote storage protocol buffer definitions](https://github.com/prometheus/prometheus/blob/main/prompb/remote.proto)
+- Various web framework utils to serve the remote wire protocols, which are controlled by corresponding feature-gates. Available features:
+  - `warp`
+  - more web framework will be added
+
+Any third-party storage can integrate with Prometheus by implementing this `RemoteStorage` trait.
 
 ```rust
 #[async_trait]
@@ -29,5 +33,3 @@ pub trait RemoteStorage {
 ```
 
 See [simple.rs](examples/simple.rs) to learn how to build a remote storage with [warp](https://github.com/seanmonstar/warp) web framework.
-
-In future, more web framework will be supported.

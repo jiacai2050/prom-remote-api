@@ -1,4 +1,4 @@
-//! Prometheus should contains following configs to test against this remote storage
+//! To configure Prometheus to send samples to this binary, add the following to your prometheus.yml:
 //!
 //! ```yml
 //! remote_write:
@@ -88,7 +88,7 @@ impl RemoteStorage for MockStorage {
     }
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     let storage = Arc::new(MockStorage) as RemoteStorageRef;
     let write_api = warp::path!("write")
