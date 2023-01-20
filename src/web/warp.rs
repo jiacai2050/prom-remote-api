@@ -20,24 +20,32 @@ use crate::{
 };
 
 /// Warp handler for remote write request
-pub async fn write(storage: RemoteStorageRef, req: WriteRequest) -> Result<impl Reply, Rejection> {
+pub async fn write<C: Send + Sync + Clone, Err: Reject + Send>(
+    storage: RemoteStorageRef<C, Err>,
+    ctx: C,
+    req: WriteRequest,
+) -> Result<impl Reply, Rejection> {
     storage
-        .write(req)
+        .write(ctx, req)
         .await
-        .map_err(reject::custom)
         .map(|_| reply::reply())
+        .map_err(reject::custom)
 }
 
 /// Warp handler for remote read request
-pub async fn read(storage: RemoteStorageRef, req: ReadRequest) -> Result<impl Reply, Rejection> {
-    storage.read(req).await.map_err(reject::custom)
+pub async fn read<C: Send + Sync + Clone, Err: Reject + Send>(
+    storage: RemoteStorageRef<C, Err>,
+    ctx: C,
+    req: ReadRequest,
+) -> Result<impl Reply, Rejection> {
+    storage.read(ctx, req).await.map_err(reject::custom)
 }
 
 /// Create a `Filter` that matches any requests and return a `RemoteStorageRef`,
 /// which can be used in `and_then`.
-pub fn with_remote_storage(
-    storage: RemoteStorageRef,
-) -> impl Filter<Extract = (RemoteStorageRef,), Error = Infallible> + Clone {
+pub fn with_remote_storage<C, Err>(
+    storage: RemoteStorageRef<C, Err>,
+) -> impl Filter<Extract = (RemoteStorageRef<C, Err>,), Error = Infallible> + Clone {
     warp::any().map(move || storage.clone())
 }
 

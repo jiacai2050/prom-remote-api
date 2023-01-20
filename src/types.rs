@@ -40,11 +40,23 @@ impl std::error::Error for Error {
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
 #[async_trait]
 pub trait RemoteStorage {
-    /// Write samples to remote storage
-    async fn write(&self, req: WriteRequest) -> Result<()>;
+    type Err;
+    type Context;
 
-    /// Read samples from remote storage
-    async fn read(&self, req: ReadRequest) -> Result<ReadResponse>;
+    /// Write samples to remote storage
+    async fn write(
+        &self,
+        ctx: Self::Context,
+        req: WriteRequest,
+    ) -> std::result::Result<(), Self::Err>;
+
+    /// Read samples from remote storage,
+    /// `ReadRequest` contains many sub queries.
+    async fn read(
+        &self,
+        ctx: Self::Context,
+        req: ReadRequest,
+    ) -> std::result::Result<ReadResponse, Self::Err>;
 }
 
-pub type RemoteStorageRef = Arc<dyn RemoteStorage + Send + Sync>;
+pub type RemoteStorageRef<C, E> = Arc<dyn RemoteStorage<Err = E, Context = C> + Send + Sync>;
