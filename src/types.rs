@@ -36,6 +36,7 @@ impl std::error::Error for Error {
 }
 
 /// Remote storage is Prometheus's solution for long-term storage.
+///
 /// Third-party storage can be integrated with Prometheus by implement this trait.
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
 #[async_trait]
@@ -51,7 +52,7 @@ pub trait RemoteStorage {
     ) -> std::result::Result<(), Self::Err>;
 
     /// Read samples from remote storage,
-    /// `ReadRequest` contains many sub queries.
+    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub queries.
     async fn read(
         &self,
         ctx: Self::Context,

@@ -24,11 +24,23 @@ Any third-party storage can integrate with Prometheus by implementing this `Remo
 ```rust
 #[async_trait]
 pub trait RemoteStorage {
-    /// Write samples to remote storage
-    async fn write(&self, req: WriteRequest) -> Result<()>;
+    type Err;
+    type Context;
 
-    /// Read samples from remote storage
-    async fn read(&self, req: ReadRequest) -> Result<ReadResponse>;
+    /// Write samples to remote storage
+    async fn write(
+        &self,
+        ctx: Self::Context,
+        req: WriteRequest,
+    ) -> std::result::Result<(), Self::Err>;
+
+    /// Read samples from remote storage,
+    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub queries.
+    async fn read(
+        &self,
+        ctx: Self::Context,
+        req: ReadRequest,
+    ) -> std::result::Result<ReadResponse, Self::Err>;
 }
 ```
 
