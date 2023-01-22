@@ -1,5 +1,12 @@
+//! This module provides Rust-binding to [prometheus remote storage protocol buffer definitions][proto].
+//!
+//! Go to [docs.rs][docs] to see those binding types.
+//!
+//! [proto]: https://github.com/prometheus/prometheus/blob/main/prompb/remote.proto
+//! [docs]: https://docs.rs/prom-remote-api/latest/prom_remote_api/types/index.html
+
 use async_trait::async_trait;
-use std::{fmt::Display, sync::Arc};
+use std::{fmt::Display, result::Result as StdResult, sync::Arc};
 
 mod prometheus {
     include!(concat!(env!("OUT_DIR"), "/prometheus.rs"));
@@ -13,7 +20,7 @@ pub enum Error {
     ProtoDecode(prost::DecodeError),
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = StdResult<T, Error>;
 
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -40,24 +47,42 @@ impl std::error::Error for Error {
 /// Third-party storage can be integrated with Prometheus by implement this trait.
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
 #[async_trait]
-pub trait RemoteStorage {
-    type Err;
-    type Context;
+pub trait RemoteStorage: Sync {
+    type Err: Send;
+    type Context: Send + Sync;
 
-    /// Write samples to remote storage
-    async fn write(
+    /// Write samples to remote storage.
+    async fn write(&self, ctx: Self::Context, req: WriteRequest) -> StdResult<(), Self::Err>;
+
+    /// Process one query within [ReadRequest](crate::types::ReadRequest).
+    ///
+    /// Note: Prometheus remote protocol sends multiple queries by default,
+    /// use [read](crate::types::RemoteStorage::read) to serve ReadRequest.
+    async fn process_query(
         &self,
-        ctx: Self::Context,
-        req: WriteRequest,
-    ) -> std::result::Result<(), Self::Err>;
+        ctx: &Self::Context,
+        q: Query,
+    ) -> StdResult<QueryResult, Self::Err>;
 
-    /// Read samples from remote storage,
-    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub queries.
+    /// Read samples from remote storage.
+    ///
+    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub [queries](crate::types::Query).
     async fn read(
         &self,
         ctx: Self::Context,
         req: ReadRequest,
-    ) -> std::result::Result<ReadResponse, Self::Err>;
+    ) -> StdResult<ReadResponse, Self::Err> {
+        let results = futures::future::join_all(
+            req.queries
+                .into_iter()
+                .map(|q| async { self.process_query(&ctx, q).await }),
+        )
+        .await
+        .into_iter()
+        .collect::<StdResult<Vec<_>, Self::Err>>()?;
+
+        Ok(ReadResponse { results })
+    }
 }
 
 pub type RemoteStorageRef<C, E> = Arc<dyn RemoteStorage<Err = E, Context = C> + Send + Sync>;

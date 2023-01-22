@@ -20,7 +20,7 @@ use crate::{
 };
 
 /// Warp handler for remote write request
-pub async fn write<C: Send + Sync + Clone, Err: Reject + Send>(
+pub async fn write<C: Send + Sync, Err: Reject + Send>(
     storage: RemoteStorageRef<C, Err>,
     ctx: C,
     req: WriteRequest,
@@ -33,7 +33,7 @@ pub async fn write<C: Send + Sync + Clone, Err: Reject + Send>(
 }
 
 /// Warp handler for remote read request
-pub async fn read<C: Send + Sync + Clone, Err: Reject + Send>(
+pub async fn read<C: Send + Sync, Err: Reject + Send>(
     storage: RemoteStorageRef<C, Err>,
     ctx: C,
     req: ReadRequest,

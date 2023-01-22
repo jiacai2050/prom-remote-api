@@ -19,28 +19,45 @@ This crate provides:
   - `warp`
   - more web framework will be added
 
-Any third-party storage can integrate with Prometheus by implementing this `RemoteStorage` trait.
+Any third-party storage can integrate with Prometheus by implementing `RemoteStorage` trait.
 
 ```rust
-#[async_trait]
-pub trait RemoteStorage {
-    type Err;
-    type Context;
+pub trait RemoteStorage: Sync {
+    type Err: Send;
+    type Context: Send + Sync;
 
-    /// Write samples to remote storage
-    async fn write(
+    /// Write samples to remote storage.
+    async fn write(&self, ctx: Self::Context, req: WriteRequest) -> Result<(), Self::Err>;
+
+    /// Process one query within [ReadRequest](crate::types::ReadRequest).
+    ///
+    /// Note: Prometheus remote protocol sends multiple queries by default,
+    /// use [read](crate::types::RemoteStorage::read) to serve ReadRequest.
+    async fn process_query(
         &self,
-        ctx: Self::Context,
-        req: WriteRequest,
-    ) -> std::result::Result<(), Self::Err>;
+        ctx: &Self::Context,
+        q: Query,
+    ) -> Result<QueryResult, Self::Err>;
 
-    /// Read samples from remote storage,
-    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub queries.
+    /// Read samples from remote storage.
+    ///
+    /// [ReadRequest](crate::types::ReadRequest) may contain more than one sub [queries](crate::types::Query).
     async fn read(
         &self,
         ctx: Self::Context,
         req: ReadRequest,
-    ) -> std::result::Result<ReadResponse, Self::Err>;
+    ) -> Result<ReadResponse, Self::Err> {
+        let results = futures::future::join_all(
+            req.queries
+                .into_iter()
+                .map(|q| async { self.process_query(&ctx, q).await }),
+        )
+        .await
+        .into_iter()
+        .collect::<Result<Vec<_>, Self::Err>>()?;
+
+        Ok(ReadResponse { results })
+    }
 }
 ```
 

@@ -13,8 +13,7 @@ use std::{convert::Infallible, sync::Arc};
 
 use prom_remote_api::{
     types::{
-        Error, Label, QueryResult, ReadRequest, ReadResponse, RemoteStorage, Result, Sample,
-        TimeSeries, WriteRequest,
+        Error, Label, Query, QueryResult, RemoteStorage, Result, Sample, TimeSeries, WriteRequest,
     },
     web,
 };
@@ -59,38 +58,35 @@ impl RemoteStorage for MockStorage {
         Ok(())
     }
 
-    async fn read(&self, _ctx: Self::Context, req: ReadRequest) -> Result<ReadResponse> {
-        println!("mock read, req:{req:?}");
-        let query = &req.queries[0];
+    async fn process_query(&self, _ctx: &Self::Context, query: Query) -> Result<QueryResult> {
+        println!("mock read, req:{query:?}");
 
-        Ok(ReadResponse {
-            results: vec![QueryResult {
-                timeseries: vec![TimeSeries {
-                    labels: vec![
-                        Label {
-                            name: "job".to_string(),
-                            value: "mock-remote".to_string(),
-                        },
-                        Label {
-                            name: "instance".to_string(),
-                            value: "127.0.0.1:9201".to_string(),
-                        },
-                        Label {
-                            name: "__name__".to_string(),
-                            value: "up".to_string(),
-                        },
-                    ],
-                    samples: generate_samples(
-                        query.start_timestamp_ms,
-                        query.end_timestamp_ms,
-                        query
-                            .hints
-                            .as_ref()
-                            .map(|hint| hint.step_ms)
-                            .unwrap_or(1000),
-                    ),
-                    ..Default::default()
-                }],
+        Ok(QueryResult {
+            timeseries: vec![TimeSeries {
+                labels: vec![
+                    Label {
+                        name: "job".to_string(),
+                        value: "mock-remote".to_string(),
+                    },
+                    Label {
+                        name: "instance".to_string(),
+                        value: "127.0.0.1:9201".to_string(),
+                    },
+                    Label {
+                        name: "__name__".to_string(),
+                        value: "up".to_string(),
+                    },
+                ],
+                samples: generate_samples(
+                    query.start_timestamp_ms,
+                    query.end_timestamp_ms,
+                    query
+                        .hints
+                        .as_ref()
+                        .map(|hint| hint.step_ms)
+                        .unwrap_or(1000),
+                ),
+                ..Default::default()
             }],
         })
     }
