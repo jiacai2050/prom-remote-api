@@ -48,7 +48,10 @@ impl std::error::Error for Error {
 /// <https://prometheus.io/docs/prometheus/latest/storage/#remote-storage-integrations>
 #[async_trait]
 pub trait RemoteStorage: Sync {
+    /// The type of failures yielded when write and read.
     type Err: Send;
+
+    /// The type of request-scoped values provided for write and read.
     type Context: Send + Sync;
 
     /// Write samples to remote storage.
