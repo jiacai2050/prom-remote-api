@@ -33,7 +33,6 @@ fn generate_samples(start_ms: i64, end_ms: i64, step_ms: i64) -> Vec<Sample> {
 
     // range query
     (start_ms..end_ms)
-        .into_iter()
         .step_by(step_ms as usize)
         .enumerate()
         .map(|(i, timestamp)| Sample {
