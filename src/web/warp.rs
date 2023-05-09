@@ -1,6 +1,6 @@
 //! Remote storage adapter for warp web framework
 
-use std::{convert::Infallible, io::Read};
+use std::convert::Infallible;
 
 use bytes::Bytes;
 use prost::Message;
@@ -12,7 +12,7 @@ use warp::{
         StatusCode,
     },
     reject::{self, Reject},
-    reply, Buf, Filter, Rejection, Reply,
+    reply, Filter, Rejection, Reply,
 };
 
 use crate::{
