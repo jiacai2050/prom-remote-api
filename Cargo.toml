@@ -1,6 +1,6 @@
 [package]
 name = "prom-remote-api"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 license = "Apache-2.0"
 description = "Prometheus remote storage API for Rust"
@@ -12,6 +12,7 @@ readme = "README.md"
 
 [dependencies]
 async-trait = "0.1.61"
+bytes = "1.4.0"
 futures = "0.3.25"
 prost = "0.11.6"
 snap = "1.1.0"

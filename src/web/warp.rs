@@ -2,6 +2,7 @@
 
 use std::convert::Infallible;
 
+use bytes::Bytes;
 use prost::Message;
 use warp::{
     body,
@@ -11,7 +12,7 @@ use warp::{
         StatusCode,
     },
     reject::{self, Reject},
-    reply, Buf, Filter, Rejection, Reply,
+    reply, Filter, Rejection, Reply,
 };
 
 use crate::{
@@ -63,8 +64,8 @@ impl Reject for Error {}
 // https://github.com/ParkMyCar/warp-protobuf/blob/master/src/lib.rs#L102
 pub fn protobuf_body<T: Message + Send + Default>(
 ) -> impl Filter<Extract = (T,), Error = Rejection> + Copy {
-    async fn from_reader<T: Message + Send + Default>(buf: impl Buf) -> Result<T, Rejection> {
-        util::decode_snappy(buf.chunk())
+    async fn from_reader<T: Message + Send + Default>(bytes: Bytes) -> Result<T, Rejection> {
+        util::decode_snappy(&bytes)
             .map_err(reject::custom)
             .and_then(|decoded_buf| {
                 T::decode(decoded_buf.as_slice())
@@ -72,7 +73,7 @@ pub fn protobuf_body<T: Message + Send + Default>(
             })
     }
 
-    body::aggregate().and_then(from_reader)
+    body::bytes().and_then(from_reader)
 }
 
 impl warp::Reply for ReadResponse {
