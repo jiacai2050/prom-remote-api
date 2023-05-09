@@ -17,6 +17,7 @@ pub use prometheus::*;
 pub enum Error {
     SnappyEncode(snap::Error),
     SnappyDecode(snap::Error),
+    ReadRequest(std::io::Error),
     ProtoDecode(prost::DecodeError),
 }
 
@@ -27,6 +28,7 @@ impl Display for Error {
         match self {
             Self::SnappyEncode(_) => f.write_str("SnappyEncode"),
             Self::SnappyDecode(_) => f.write_str("SnappyDecode"),
+            Self::ReadRequest(_) => f.write_str("ReadRequest"),
             Self::ProtoDecode(_) => f.write_str("ProtoDecode"),
         }
     }
@@ -37,6 +39,7 @@ impl std::error::Error for Error {
         match self {
             Self::SnappyEncode(e) => Some(e),
             Self::SnappyDecode(e) => Some(e),
+            Self::ReadRequest(e) => Some(e),
             Self::ProtoDecode(e) => Some(e),
         }
     }

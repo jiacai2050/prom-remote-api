@@ -1,6 +1,6 @@
 //! Remote storage adapter for warp web framework
 
-use std::convert::Infallible;
+use std::{convert::Infallible, io::Read};
 
 use prost::Message;
 use warp::{
@@ -64,7 +64,12 @@ impl Reject for Error {}
 pub fn protobuf_body<T: Message + Send + Default>(
 ) -> impl Filter<Extract = (T,), Error = Rejection> + Copy {
     async fn from_reader<T: Message + Send + Default>(buf: impl Buf) -> Result<T, Rejection> {
-        util::decode_snappy(buf.chunk())
+        let mut body = Vec::new();
+        buf.reader()
+            .read_to_end(&mut body)
+            .map_err(Error::ReadRequest)?;
+
+        util::decode_snappy(&body)
             .map_err(reject::custom)
             .and_then(|decoded_buf| {
                 T::decode(decoded_buf.as_slice())
