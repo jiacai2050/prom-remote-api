@@ -2,6 +2,7 @@
 
 use std::{convert::Infallible, io::Read};
 
+use bytes::Bytes;
 use prost::Message;
 use warp::{
     body,
@@ -63,13 +64,8 @@ impl Reject for Error {}
 // https://github.com/ParkMyCar/warp-protobuf/blob/master/src/lib.rs#L102
 pub fn protobuf_body<T: Message + Send + Default>(
 ) -> impl Filter<Extract = (T,), Error = Rejection> + Copy {
-    async fn from_reader<T: Message + Send + Default>(buf: impl Buf) -> Result<T, Rejection> {
-        let mut body = Vec::new();
-        buf.reader()
-            .read_to_end(&mut body)
-            .map_err(Error::ReadRequest)?;
-
-        util::decode_snappy(&body)
+    async fn from_reader<T: Message + Send + Default>(bytes: Bytes) -> Result<T, Rejection> {
+        util::decode_snappy(&bytes)
             .map_err(reject::custom)
             .and_then(|decoded_buf| {
                 T::decode(decoded_buf.as_slice())
@@ -77,7 +73,7 @@ pub fn protobuf_body<T: Message + Send + Default>(
             })
     }
 
-    body::aggregate().and_then(from_reader)
+    body::bytes().and_then(from_reader)
 }
 
 impl warp::Reply for ReadResponse {

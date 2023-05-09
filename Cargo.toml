@@ -12,6 +12,7 @@ readme = "README.md"
 
 [dependencies]
 async-trait = "0.1.61"
+bytes = "1.4.0"
 futures = "0.3.25"
 prost = "0.11.6"
 snap = "1.1.0"
