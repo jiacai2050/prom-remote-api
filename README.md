@@ -17,6 +17,7 @@ This crate provides:
 - Rust-binding to [prometheus remote storage protocol buffer definitions](https://github.com/prometheus/prometheus/blob/main/prompb/remote.proto)
 - Various web framework utils to serve the remote wire protocols, which are controlled by corresponding feature-gates. Available features:
   - `warp`
+  - `actix`
   - more web framework will be added
 
 Any third-party storage can integrate with Prometheus by implementing `RemoteStorage` trait.
@@ -61,4 +62,4 @@ pub trait RemoteStorage: Sync {
 }
 ```
 
-See [simple.rs](examples/simple.rs) to learn how to build a remote storage with [warp](https://github.com/seanmonstar/warp) web framework.
+See [warp-demo.rs](examples/warp-demo.rs), [actix-demo.rs](examples/actix-demo.rs) to learn how to build a remote storage.

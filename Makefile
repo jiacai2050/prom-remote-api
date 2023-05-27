@@ -13,8 +13,11 @@ else
 	echo "setup not supported on this OS"
 endif
 
-simple:
-	cargo run --example simple --features="warp tokio"
+warp-demo:
+	cargo run --example warp-demo --features="warp tokio"
+
+actix-demo:
+	cargo run --example actix-demo --features="actix"
 
 clippy:
 	cargo clippy --all-targets --all-features --workspace -- -D warnings
