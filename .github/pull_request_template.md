@@ -1,8 +1,7 @@
 # Rationale for this change
 
-Closes #
 <!---
- Why are you proposing this change? If this is already explained clearly in the issue, then this section is not needed.
+ Why are you proposing this change? Close some issue?
  Explaining clearly why changes are proposed helps reviewers understand your changes and offer better suggestions for fixes.
 -->
 
